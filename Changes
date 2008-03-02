@@ -1,0 +1,6 @@
+Revision history for Perl extension Expect::Angel.
+
+0.01  Thu Feb 28 15:44:43 2008
+	- original version; created by h2xs 1.23 with options
+		-AX -n Expect::Angel
+
