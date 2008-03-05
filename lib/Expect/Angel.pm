@@ -3,7 +3,7 @@ package Expect::Angel;
 use 5.008005;
 use strict;
 use warnings;
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 use Expect;
 my $debug = 0;
 
@@ -373,7 +373,13 @@ Expect::Angel - Build up a robust connection to your DUT
 =head1 SYNOPSIS
 
   use Expect::Angel;
-  blah blah blah
+  @ISA = ("Expect::Angel");
+  sub new {
+     my $type = shift;
+     my $para = {@_};
+     my $conn = $type->build(%$para);
+     blah blah blah
+  }
 
 =head1 DESCRIPTION
 
@@ -396,29 +402,29 @@ Here the router has 3 modes, Non-privilege, Enable, and Config. When executing e
 
 General speaking, DUT is a network appliance that provides CLI (command line interface) for user to configure and manupulate. It's very ofter that a DUT presents multiple states, each grants a level of privileges.
 
-DUT:    state0  ---->  state1  ----->  state2 ... ... -----> stateN
-                <----          <-----                 <-----
+  DUT:    state0  ---->  state1  ----->  state2 ... ... -----> stateN   
+                  <----          <-----                 <-----
 
 Each state is a stable mode of the DUT, at which the DUT may accept an input and execute it as a command.
 Each state has its own prompt and a set of commands appropriate to this state. The commands under a state can be put into categories.
 
-1. After execution the state keeps the same.
-2. After execution the state transits to another one.
+1. After execution the state keeps the same. 
+2. After execution the state transits to another one. 
 3. The execution will show more prompt asking for more input, and eventually back to the same state.
 
 The state transition may happen between two adjacent states, or skip some states.
 
-Your task is to tell Angel the following information for a specific DUT.
+Your task is to tell Angel the following information for a specific DUT. 
 1. describes the states and their prompts
 2. describes the state transition
 
-Angel provides you
-1. Maintain the connection to DUT
+Angel provides you: 
+1. Maintain the connection to DUT.
 2. Send command to DUT at each state and retrieve response of the command.
-3. Error handling
+3. Error handling.
 4. Log the messages exchanged.
 
-Properties to the connection to DUT (common to all states):
+ Properties to the connection to DUT (common to all states):
  -  timeout  => seconds,  
  -  errTries => times to try on error,
  -  errMode  => return|die|code,
@@ -439,11 +445,12 @@ Properties to the connection to DUT (common to all states):
   . left direction,
      similiar to right direction
   
-  The default behavior is non-aggressive, which tries one hop forward from the source, i.e. if 1 to 4 fails, it tries to go to 2 first, then 2 to 4.
+  The default behavior is non-aggressive, which tries one hop forward from the source,
+  i.e. if 1 to 4 fails, it tries to go to 2 first, then 2 to 4.
 
-Properites of a state
-  descr: description of this state, used for human readable purpose only.
-  name: name of the state, unique in all states, numbers only is not allowed to avoid ambiguous with default states, which are 0, 1, 2, etc. State is identified by either the sequence number (0 is the initial state), or the name.
+ Properites of a state
+   descr: description of this state, used for human readable purpose only.
+   name: name of the state, unique in all states, numbers only is not allowed to avoid ambiguous with default states, which are 0, 1, 2, etc. State is identified by either the sequence number (0 is the initial state), or the name.
   prompt: prompt of this state, in perl regular expression
   trans: transition method and parameters
 
@@ -468,78 +475,85 @@ Properites of a state
 
 =head2 Methods for Module build-up
 
-- build({timeout => $in_seconds, errMode => 'die|return', errTries => $number,
-         goto => $state, debug => 0})
-  create the DUT object and add state 0,
-  default timeout is 30 seconds. Default errTries is 3 times. Default errMode is die.
-  default state is 0, default debug is 0. You may turn it to 1 when you debug your module.
+  - build({timeout => $in_seconds, errMode => 'die|return', errTries => $number,
+           goto => $state, debug => 0})
 
-- addState({name => $name, descr => $description, prompt => $prompt})
+    function: create the DUT object and goto $state,
+    default timeout is 30 seconds. Default errTries is 3 times. Default errMode is die.
+    default state is 0, default debug is 0. You may turn it to 1 when you debug your module.
 
-  add a state to DUT object
-  "name" and "descr" are recommanded, default is stateN (N is incremented from existing state)
-  "prompt" is a Perl regular expression for this state.
+  - addState({name => $name, descr => $description, prompt => $prompt})
 
-- transitState(from, to, trans_descr)
-  define how to transit states.
+    add a state to DUT object
+    "name" and "descr" are recommanded, default is stateN (N is incremented from existing state)
+    "prompt" is a Perl regular expression for this state.
 
-  from/to, if number, assume it's sequence number of the state, otherwise, it's name of the state.
-  trans_descr, ref to a state_transition_parameters block
+  - transitState(from, to, trans_descr)
+    define how to transit states.
 
-- catState
-  print all the defined states for debug
+    from/to, if number, assume it's sequence number of the state, otherwise, it's name of the state.
+    trans_descr, ref to a state_transition_parameters block
+
+  - catState
+    print all the defined states for debug
 
 
-- movState($to)
-  do state transition from one state to another. if failed, it will try errTries times (defualt is 3), each time it moves state back to 0, and goes to the target. If errTries times  has been tried and still failed, it keeps the best try state and return undef. 
+  - movState($to)
+    do state transition from one state to another. if failed, it will try errTries times (defualt is 3), each time it moves state back to 0, and goes to the target. If errTries times  has been tried and still failed, it keeps the best try state and return undef. 
 
-- state0
-  close the socket and set the object to initial state. It doesn't try to go over the state transition from current to 0 like movState(0) does, instead, it directly calls soft_close() of Expect to close the connection.
-  But it keeps all the object properties and state transition date, so it helps to re-transit to a state from initial in case it has experienced a problem in previous attempt.   If a decent goodbye is required, movState(0) is the best solution.
+  - state0
+    close the socket and set the object to initial state. It doesn't try to go over the state transition from current to 0 like movState(0) does, instead, it directly calls soft_close() of Expect to close the connection.
+    But it keeps all the object properties and state transition date, so it helps to re-transit to a state from initial in case it has experienced a problem in previous attempt.   If a decent goodbye is required, movState(0) is the best solution.
 
-- echo($cmd)
-- echo($cmd,$expect)
-  execute $cmd at current state, and return the response of DUT in either array, or ref of the array.
-  It always expects current prompt after executes $cmd. An exception is that '--More--' is tolerated and SPACE is sent in response to it.
-
-  some $cmd need to interact with DUT in terms that DUT waits for some input after accepting $cmd. Multiple prompt phrases and answers may be exchanged before the $cmd is done and final prompt shows up.
+  - echo($cmd)
+  - echo($cmd,$expect)
+    This is the most frequently used method. It executes $cmd at current state, and return the response of DUT in either array, or ref of the array. It always expects current prompt after executes $cmd. An exception is that '--More--' is tolerated and SPACE is sent in response to it.
+    some $cmd need to interact with DUT in terms that DUT waits for some input after accepting $cmd. Multiple prompt phrases and answers may be exchanged before the $cmd is done and final prompt shows up.
   $expect defines these interactive exchanges
   {"prompt phrase1 => answer1", ... , "prompt phraseN => answerN"}
   where "prompt phraseN" can be expressed in Regular Expression
 
-  in case error happens when $cmd is executed, it will try errTries times (defualt is 3), each time it moves state back to 0, and goes to current state, and executes the $cmd again. If errTries times  has been tried and still failed, it takes action defined by errMode, i.e, die, return, or exectues a code, then return false condition.
+   in case error happens when $cmd is executed, it will try errTries times (defualt is 3), each time it moves state back to 0, and goes to current state, and executes the $cmd again. If errTries times  has been tried and still failed, it takes action defined by errMode, i.e, die, return, or exectues a code, then return false condition.
+
+   The response from the execution of the command $cmd is returned, each line is an element. Depending on the context to assign, it either returns reference or the list itself.
+
+   # this will return a list and assigned to @msg;
+   @msg = $conn->echo("ls -l");
+
+   # this will return ref to a list and assigned to $msg;
+   $msg = $conn->echo("ls -l");
 
 
-- robustecho($cmd,$retMsgPt,$rejectPattern)
-  send an command to DUT may encounter 3 situations
-  1. the command is slurped by DUT without rejection, the action success.
-  2. the command is rejected by DUT with error message, the action is failed
-  3. DUT is crashed by the command, the action cause catastrophe
+  - robustecho($cmd,$retMsgPt,$rejectPattern)
+    send an command to DUT may encounter 3 situations
+    1. the command is slurped by DUT without rejection, the action success.
+    2. the command is rejected by DUT with error message, the action is failed
+    3. DUT is crashed by the command, the action cause catastrophe
 
-  this method detects the situation and return true on No.1, false on No.2, and undef on No.3
-  $retMsgPt is a ref to list, the response of DUT to $cmd is assiged to it.
-  $rejectPattern is RE that tells the matched response is regarded as rejection message from DUT.
-  If the No.3 happens, $retMsgPt will hold the error message.
+    This method detects the situation and return true on No.1, false on No.2, and undef on No.3
+    $retMsgPt is a ref to list, the response of DUT to $cmd is assiged to it.
+    $rejectPattern is RE that tells the matched response is regarded as rejection message from DUT.
+    If the No.3 happens, $retMsgPt will hold the error message.
 
 
 =head1 Examples
 
 Example 1: Cisco router module
 
-package Cisco;
-use Expect::Angel;
-@ISA = ("Expect::Angel");
-my $debug = 0;
-#
-sub new {
-   my $type = shift;
-   my $para = {@_};
-   my $conn = $type->build(%$para);
+  package Cisco;
+  use Expect::Angel;
+  @ISA = ("Expect::Angel");
+  my $debug = 0;
+  #
+  sub new {
+     my $type = shift;
+     my $para = {@_};
+     my $conn = $type->build(%$para);
 
-   #
-   # define states
-   #
-   my $states = [( { prompt => 'router>$' },  # state 0
+     #
+     # define states
+     #
+     my $states = [( { prompt => 'router>$' },  # state 0
                    { prompt => 'router#$',    # state 1
                      name   => "enable",         
                      descr  => "enable mode"
@@ -549,83 +563,83 @@ sub new {
                      descr  => "configuration model"
                    },
                 )];
-   $conn->addState(%$_) for (@$states);
+     $conn->addState(%$_) for (@$states);
 
-   #
-   # define transition
-   #
-   # 0 -> 1
-   my $trans = {command => "telnet $para->{dut}",
+     #
+     # define transition
+     #
+     # 0 -> 1
+     my $trans = {command => "telnet $para->{dut}",
                 expect => { 'Username: \r?$' => $para->{user},
                             'Password: \r?$' => $para->{passwd} }
                };
-   $conn->transitState(0,1,$trans);
+     $conn->transitState(0,1,$trans);
 
-   # 1 -> 2 
-   $trans = {command => "enable",
+     # 1 -> 2 
+     $trans = {command => "enable",
                 expect => { 'Password: \r?$' => $para->{enpasswd} }
                };
-   $conn->transitState(1,2,$trans);
+     $conn->transitState(1,2,$trans);
 
-   # 2 -> 3 
-   $trans = {command => "conf t", expect => { } };
-   $conn->transitState(2,3,$trans);
+     # 2 -> 3 
+     $trans = {command => "conf t", expect => { } };
+     $conn->transitState(2,3,$trans);
 
-   # 3 -> 2 , 2 -> 0
-   $trans = {command => "exit", expect => { } };
-   $conn->transitState(3,2,$trans);
-   $conn->transitState(2,0,$trans);
+     # 3 -> 2 , 2 -> 0
+     $trans = {command => "exit", expect => { } };
+     $conn->transitState(3,2,$trans);
+     $conn->transitState(2,0,$trans);
 
-   # 2 -> 1 
-   $trans = {nexthop => 0 };
-   $conn->transitState(2,1,$trans);
+     # 2 -> 1 
+     $trans = {nexthop => 0 };
+     $conn->transitState(2,1,$trans);
+  
+     # 
+     # transit to the specified state
+     #
+     if (exists $para->{'goto'}) {
+        return $conn->movState($para->{'goto'}) ? $conn : undef;
+     }
+     $conn;
+  }
 
-   # 
-   # transit to the specified state
-   #
-   if (exists $para->{'goto'}) {
-      return $conn->movState($para->{'goto'}) ? $conn : undef;
-   }
-   $conn;
-}
-
-sub enableMode {
-   my ($conn) = shift;
-   $conn->movState("enable") or return undef;
-   # or if you prefer to use state number
-   # $conn->movState(2) or return undef;
-}
-
-sub confMode {
-   my ($conn) = shift;
-   $conn->movState("config") or return undef;
-}
-
-1;
-
+  sub enableMode {
+     my ($conn) = shift;
+     $conn->movState("enable") or return undef;
+     # or if you prefer to use state number
+     # $conn->movState(2) or return undef;
+  }
+  
+  sub confMode {
+     my ($conn) = shift;
+     $conn->movState("config") or return undef;
+  }
+  
+  1;
+  
 There is the script to test the model
 
-#!/usr/bin/perl -w
-use Expect::Angel;
-use lib(".");
-use Cisco;
-
-my $m = '10.2.3.1';
-our $dut = new Cisco(user => 'username', passwd => 'cisco', enpasswd => 'cisco', dut => $m ) or die "Failed to connect to $m\n";
-
-for $s1 ( 1 ... 3 ) {
-   $dut->movState($s1) or die "\nfailed to back from $s2 to state $s1\n\n";
-   for $s2 (1,2,3) {
-      if ($dut->movState($s2)) {
-         print "success from $s1 to $s2\n";
-      }else{
-         print "failed from $s1 to $s2\n";
-         print "current state: $dut->{current}\n";
-      }
-   }
-}
-$dut->enableMode() or die "failed to go to enable mode\n";
-$dut->confMode() or die "failed to go to enable mode\n";
+  #!/usr/bin/perl -w
+  use Expect::Angel;
+  use lib(".");
+  use Cisco;
+  
+  my $m = '10.1.1.1';
+  our $dut = new Cisco(user => 'username', passwd => 'your_passwd', enpasswd => 'en_passwd', dut => $m ) or die "Failed to connect to $m\n";
+  
+  for $s1 ( 1 ... 3 ) {
+     $dut->movState($s1) or die "\nfailed to back from $s2 to state $s1\n\n";
+     for $s2 (1,2,3) {
+        if ($dut->movState($s2)) {
+           print "success from $s1 to $s2\n";
+        }else{
+           print "failed from $s1 to $s2\n";
+           print "current state: $dut->{current}\n";
+        }
+     }
+  }
+  $dut->enableMode() or die "failed to go to enable mode\n";
+  $dut->confMode() or die "failed to go to enable mode\n";
 
 =head1 AUTHOR
 
