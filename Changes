@@ -1,6 +1,15 @@
 Revision history for Perl extension Expect::Angel.
 
-0.01  Thu Feb 28 15:44:43 2008
+0.01  Thu Apr 22 15:30:37 2007
 	- original version; created by h2xs 1.23 with options
-		-AX -n Expect::Angel
+		-AXn Expect::Angel
+
+0.02  Thu Mar 05 15:10:07 2008
+        - add some doc
+
+
+1.00  Sun Oct 10 2010
+        - major change in both methods and implementation
+        - retired echo(), replaced by cmdexe()
+        - a lot other features to support variety of types of devices including Cisco, Juno, and Linux
 

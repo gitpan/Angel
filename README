@@ -1,4 +1,4 @@
-Expect-Angel version 0.01
+Expect-Angel version 1.00
 =========================
 
 The README is used to introduce the module and provide instructions on
@@ -25,16 +25,17 @@ DEPENDENCIES
 
 This module requires these other modules and libraries:
 
-  blah blah blah
+  Expect-1.21
+  Term::ReadKey
 
 COPYRIGHT AND LICENCE
 
-Put the correct copyright and licence information here.
+These modules can be used under the same terms as Perl.
 
-Copyright (C) 2008 by ming
+Copyright (C) 2010 by Ming Zhang
 
 This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.5 or,
+it under the same terms as Perl itself, either Perl version 5.8.0 or,
 at your option, any later version of Perl 5 you may have available.
 
 

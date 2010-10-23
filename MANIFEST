@@ -2,5 +2,10 @@ Changes
 Makefile.PL
 MANIFEST
 README
-t/Expect-Angel.t
+t/00-Expect-Angel-build.t 
+t/01-Expect-Angel-state.t
+t/02-Expect-Angel-cmdexe.t
 lib/Expect/Angel.pm
+lib/Expect/Angel/Cisco.pm
+lib/Expect/Angel/Juniper.pm
+lib/Expect/Angel/Linux.pm
