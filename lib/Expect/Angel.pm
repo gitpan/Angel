@@ -2,7 +2,7 @@ package Expect::Angel;
 use strict;
 use warnings;
 use Term::ReadKey;
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 use Expect;
 my ($debug);
 
@@ -64,7 +64,7 @@ Angel is just like a messenger between your testing machine, where everyting is 
 
 Angel is built on Expect.pm module, but hides the complexity of it. With Angel.pm You can easily build an object-oriented module that meets your specific need with the most useful methods inherited from Angel.
 
-Let's take CISCO router as the first example, and I will show another one that simulates a complex DUT scenarios with Linux machine in the package.
+Let's take CISCO router as the first example.
 
  CISCIO Router
 
@@ -82,20 +82,29 @@ General speaking, DUT is a network appliance that provides CLI (command line int
 
 Each state is a stable mode of the DUT, at which the DUT may accept an input and execute it as a command.
 Each state has its own prompt and a set of commands appropriate to this state. The commands under a state can be put into categories.
- 1. After execution the state keeps the same. 
- 2. After execution the state transits to another one. 
- 3. The execution will show more prompt asking for more input, and eventually back to the some state.
+
+  1. After execution the state keeps the same. 
+
+  2. After execution the state transits to another one. 
+
+  3. The execution will show more prompt asking for more input, and eventually back to the some state.
 
 The state transition may happen between two adjacent states, or skip some states.
 
 Your task is to tell Angel the following information for a specific DUT. 
- 1. describes the states and their prompts
- 2. describes the state transition
+
+  1. describes the states and their prompts
+
+  2. describes the state transition
 
 Angel provides you: 
+
  1. Maintain the connection to DUT.
+
  2. Send command to DUT at each state and retrieve response of the command.
+
  3. Error handling.
+
  4. Log the messages exchanged.
 
 
@@ -391,7 +400,7 @@ sub catState {
 
 =head2  movState($state)
 
- move to $state from whatever current state is. It will try its best anyway up to errTries times.
+ Move to $state from whatever current state is. It will try its best anyway up to errTries times.
  After the first time fails, it moves state to initial state, then go to $state afterwards. 
  If errTries times has been tried and still failed, it keeps the best achieved state and return undef.
  return: true if successful, new current state = $state
@@ -415,7 +424,7 @@ sub movState {
 
    set or get sticky attribute of the object.
    sticky controls state transition behavior after a command execution, see cmdexe() for detail.
-   input: optional, true|false
+   input: optional, true|false, it's set if provided, otherwise it returns the current value.
 
 =cut
 
@@ -1293,6 +1302,7 @@ __END__
 
   Expect::Angel::Cisco
   Expect::Angel::Juniper
+  Expect::Angel::Linux
 
 =head1 Changes
 

@@ -1,6 +1,6 @@
 package Expect::Angel::Juniper;
 use base Expect::Angel;
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 
 =head1 NAME
 
@@ -166,6 +166,19 @@ sub bye {
      my ($conn) = shift;
      $conn->movState(0) or return undef;
 }
+
+=head1 AUTHOR
+
+Ming Zhang <ming2004@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 2010, Yahoo! Inc. All rights reserved.
+
+Artistic License 1.0
+
+=cut
+
   
 1;
 

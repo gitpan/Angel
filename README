@@ -1,4 +1,4 @@
-Expect-Angel version 1.00
+Expect-Angel version 1.01
 =========================
 
 The README is used to introduce the module and provide instructions on
@@ -30,12 +30,18 @@ This module requires these other modules and libraries:
 
 COPYRIGHT AND LICENCE
 
-These modules can be used under the same terms as Perl.
-
+Expect::Angel can be used under the same terms as Perl.
 Copyright (C) 2010 by Ming Zhang
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.0 or,
 at your option, any later version of Perl 5 you may have available.
+
+Expect::Angel::Cisco, Expect::Angel::Juniper, Expect::Angel::Linux are
+examples of how to apply Expect::Angel to some devices. These modules
+depend on Expect::Angel but their copyright and licence are different
+because they were written when author works at Yahoo! Inc. Refer to
+"COPYRIGHT AND LICENCE" section of each module for more informaiton.
+
 
 

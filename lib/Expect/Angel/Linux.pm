@@ -1,6 +1,6 @@
 package Expect::Angel::Linux;
 use base Expect::Angel;
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 
 =head1 NAME
 
@@ -134,28 +134,19 @@ sub login {
 
    Run a command(s), see Expect::Angel for detail
 
-=head3 Usage
    my $output = $host->cmdexe("cat ~/myfile");
+
    my @output = $host->cmdexe("cat ~/myfile");
 
-=head3 Inputs
+ Inputs:
 
-=over
+   $cmd: The shell command to execute on remote host
 
-=item $cmd
+   $expect: Optional, ref to list of hash that describes the interactive expect body for this command.
 
- The shell command to execute on remote host
+ Returns:
 
-=item $expect
-
- Optional, ref to list of hash that describes the interactive expect body for this command.
-
-=back
-
-=head3 Returns
-
- the output of the last command execution.
- In list context it returns line by line, without \n, 
+  The output of the last command execution.  In list context it returns line by line, without \n, 
  in scalar context, it returns the string of the output.
 
 =cut
@@ -170,7 +161,7 @@ sub cmdexe  {
 =head2 cmdexe_nonesc($cmd,$expect)
 
 Same as cmdexe() except that it does not escape single quote.
-If you have a sngle quote in $comd, you mean it's used in shell command format, so it's not escaped.
+If you have a sngle quote in $cmd, you mean it's used in shell command format, so it's not escaped.
 
 =cut
 
@@ -183,27 +174,18 @@ sub cmdexe_nonesc  {
 
    Run a command and check its exit code by "echo $?".
 
-=head3 Usage
    my ($exitcode,$output) = $host->cmdSendCheck("cat ~/myfile");
 
-=head3 Inputs
+   Inputs
 
-=over
+      $cmd: The shell command to execute on remote host
 
-=item $cmd
+      $expect: Optional, ref to list of hash that describes the interactive expect body for this command.
 
- The shell command to execute on remote host
 
-=item $expect
+   Returns: $exitcode,$output. 
 
- Optional, ref to list of hash that describes the interactive expect body for this command.
-
-=back
-
-=head3 Returns
-
-  $exitcode,$output
-  if $cmd execution failed, both are undef
+      If $cmd execution failed, both are undef
 
 =cut
 
@@ -220,9 +202,11 @@ sub cmdSendCheck {
   
 =head2 existsDir($dir)
 
-Check if $dir exists
-input: $dir - name of the directory to be checked
-output: 1|0 for exists or non-exists
+ Check if $dir exists
+
+ input: $dir - name of the directory to be checked
+
+ output: 1|0 for exists or non-exists
 
 =cut
 
@@ -234,10 +218,11 @@ sub existsDir {
 
 =head2 os()
 
-OS of the host
-return: Linux|FreeBSD
+ OS of the host
+ return: Linux|FreeBSD
 
 =cut
+
 sub os {
     my ($conn) = shift;
     chomp(my $os = $conn->cmdexe("uname -s"));
@@ -255,5 +240,19 @@ sub bye {
      $conn->movState(0) or return undef;
 }
   
+=head1 AUTHOR
+
+Ming Zhang <ming2004@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 2010, Yahoo! Inc. All rights reserved.
+
+Artistic License 1.0
+
+=cut
+
+
+
 1;
 
